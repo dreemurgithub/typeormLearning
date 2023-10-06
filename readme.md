@@ -12,3 +12,17 @@
  - [TypeOrm](https://typeorm.io/)
  - [Query builder](https://typeorm.io/select-query-builder)
  - [SQL query - Postgres NPM](https://www.npmjs.com/package/pg)
+
+ ## Running Docker
+ Running database
+ - sudo docker-compose up db
+ Go to Database CLI
+ - sudo docker ps
+ - sudo docker exec -it {Container ID} psql -U postgresUser -d twodatabase
+ Check current database running
+ - sudo ss -lptn 'sport = :5432'
+ - sudo kill {pip ID}
+ Run app
+ - Development: npm run dev
+ - Start both the container: sudo docker-compose up
+ - Turn off containers: sudo docker-compose down
