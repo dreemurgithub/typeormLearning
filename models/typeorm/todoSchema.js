@@ -1,7 +1,5 @@
 const EntitySchema = require("typeorm").EntitySchema
-
-
-module.exports = new EntitySchema({
+const todoSchema = new EntitySchema({
     name: "todo",
     tableName:"todo",
     columns: {
@@ -27,6 +25,8 @@ module.exports = new EntitySchema({
           updatedAt: {
             type: "timestamp",
             onUpdate: "CURRENT_TIMESTAMP",
+            default: () => "CURRENT_TIMESTAMP",
+
           },
       
     },
@@ -54,4 +54,6 @@ module.exports = new EntitySchema({
         
         }
     }
-});
+})
+
+module.exports = todoSchema;

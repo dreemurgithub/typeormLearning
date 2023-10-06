@@ -1,19 +1,24 @@
 const EntitySchema = require("typeorm").EntitySchema
 
-
-module.exports = new EntitySchema({
-    name: "users_todo",
+const users_todoSchema = new EntitySchema({
+    name: "Users_todo",
     tableName: "users_todo",
     columns: {
-        user_id: {
+        id : {
             primary: true,
             type: "int",
-            generated: true
+            generated: true,
+            transformer: {
+                from: (value) => parseInt(value),
+                to: (value) => parseInt(value),
+              },
+        
+        },
+        user_id: {
+            type: "int",
         },
         todo_id: {
-            primary: true,
             type: "int",
-            generated: true
         }
       
     },
@@ -39,4 +44,6 @@ module.exports = new EntitySchema({
               },
         },
     }
-});
+})
+
+module.exports = users_todoSchema;

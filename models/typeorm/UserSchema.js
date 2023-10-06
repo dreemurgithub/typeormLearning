@@ -37,28 +37,28 @@ const UsersSchema = new EntitySchema({
         onUpdate: () => 'CURRENT_TIMESTAMP',
       },
     },
-    // relations: {
-    //     users_todo: {
-    //         target: "users_todo",
-    //         type: "one-to-many",
-    //         joinTable: true,
-    //         cascade: true,
-    //         joinColumn: {
-    //             name: "id",
-    //             referencedColumnName: "user_id",
-    //           },
-    //     },
-    //     comment : {
-    //         target: "comment",
-    //         type: "one-to-many",
-    //         joinTable: true,
-    //         cascade: true,
-    //         joinColumn: {
-    //             name: "id",
-    //             referencedColumnName: "author",
-    //           },
-    //     }
-    // }
+    relations: {
+        users_todo: {
+            target: "users_todo",
+            type: "one-to-many",
+            joinTable: true,
+            cascade: true,
+            joinColumn: {
+                name: "id",
+                referencedColumnName: "user_id",
+              },
+        },
+        comment : {
+            target: "comment",
+            type: "one-to-many",
+            joinTable: true,
+            cascade: true,
+            joinColumn: {
+                name: "id",
+                referencedColumnName: "author",
+              },
+        }
+    }
   });
 
   module.exports = UsersSchema
