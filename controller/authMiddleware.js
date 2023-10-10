@@ -9,6 +9,7 @@ const authMiddleware = async (req, res, next) => {
   // allow login and logout and create new user
   const autoPass =
     req.url === URL_LIST.login ||
+    req.url === `${URL_LIST.login}/orm` ||
     req.url === URL_LIST.logout ||
     req.url === URL_LIST.register ||
     req.url === `${URL_LIST.register}/orm`;
@@ -77,13 +78,13 @@ const authMiddleware = async (req, res, next) => {
 const checkAuthSession = async (table, { userId, commentid, todo_id, id }) => {
   if (table === "users") {
     if (id === userId)
-      return [`${URL_LIST.typeOrmUser}/delete`, URL_LIST.typeOrmUser];
+      return [`${URL_LIST.typeOrmUser}/delete`, URL_LIST.typeOrmUser,`${URL_LIST.typeOrmUser}/${id}`];
     else return [];
   }
   if (table === "todo") {
     const todosArr = await users_todoRepository
       .createQueryBuilder()
-      // .where({ user_id: userId })
+      .where({ user_id: userId })
       .getMany();
     const todoArrId = [];
     for (let i = 0; i < todosArr.length; i++)

@@ -53,15 +53,15 @@ const readAllUserOrm = async () => {
 };
 
 const readOneUserOrm = async (id) => {
-  const users = await userRepository.find({where: {id}});
+  const users = await userRepository.find({ where: { id } });
   return users[0];
 };
 
-const UdateOneUserOrm = async ({id,username, email, password}) => {
+const UdateOneUserOrm = async ({ id, username, email, password }) => {
   await userRepository
     .createQueryBuilder("users")
     .update({ id })
-    .set({username, email, password})
+    .set({ username, email, password })
     .where("id = :id", { id })
     .execute();
   const newuser = await userRepository.find({ where: { id } });
@@ -79,7 +79,7 @@ const deleteUserOrm = async (userId) => {
       let todo_id = arrTodoId[i];
       console.log(todo_id);
       await commentRepository.delete({ todo_id });
-      await users_todoRepository.delete({ user_id : userId });
+      await users_todoRepository.delete({ user_id: userId });
       await todoRepository.delete({ todo_id });
     }
     return { message: "Delete successfully" };
@@ -95,8 +95,18 @@ const SignInUserOrm = async ({ email, password }) => {
   return null;
 };
 
-const readTodoOrm = async () => {
-  const allUser = await todoRepository.find();
+const readTodoOrm = async (userId) => {
+  const todo_idList = await users_todoRepository.find({
+    select: ["todo_id"],
+    where: { user_id: userId },
+  });
+  const allUser = [];
+  console.log(todo_idList)
+  for(let i=0;i<todo_idList.length;i++){
+    const todo_id = todo_idList[i].todo_id
+    const todo = await todoRepository.find({ where: { todo_id } })
+    allUser.push(todo);
+  }
   return allUser;
 };
 
@@ -141,11 +151,13 @@ const addCommentOrm = async ({ title, body, todo_id, userId }) => {
 };
 
 const readCommentUserOrm = async (userId) => {
-  const allComment = await commentRepository.find( {where: { author: userId} });
+  const allComment = await commentRepository.find({
+    where: { author: userId },
+  });
   return allComment;
 };
 const readCommentTodoOrm = async (todo_id) => {
-  const allComment = await commentRepository.find({where:{ todo_id }});
+  const allComment = await commentRepository.find({ where: { todo_id } });
   return allComment;
 };
 
@@ -191,5 +203,5 @@ module.exports = {
   updateCommentOrm,
   deleteCommentOrm,
   deleteUserOrm,
-  readOneUserOrm
+  readOneUserOrm,
 };

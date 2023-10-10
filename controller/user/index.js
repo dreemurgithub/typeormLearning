@@ -1,20 +1,20 @@
-const usertRoute = require("express")();
+const userRoute = require("express")();
 const URL_LIST = require("../../constants");
 
-const {deleteUserOrm,readAllUserOrm, readOneUserOrm,UdateOneUserOrm} = require('../../models/typeorm/index')
+const {deleteUserOrm,readAllUserOrm, readOneUserOrm,UdateOneUserOrm} = require("../../models/typeorm/index")
 
-usertRoute.get(URL_LIST.typeOrmUser, async (req, res) => {
+userRoute.get(URL_LIST.typeOrmUser, async (req, res) => {
   const user = await readAllUserOrm();
   res.send(user);
 });
 
-usertRoute.get(`${URL_LIST.typeOrmUser}/:id`, async (req, res) => {
+userRoute.get(`${URL_LIST.typeOrmUser}/:id`, async (req, res) => {
   const id = parseInt(req.params.id);
   const user = await readOneUserOrm(id);
   res.send(user);
 });
 
-usertRoute.put(URL_LIST.typeOrmUser, async (req, res) => {
+userRoute.put(URL_LIST.typeOrmUser, async (req, res) => {
   const userInfor = {
     email: req.body.email,
     username: req.body.username,
@@ -35,7 +35,7 @@ usertRoute.put(URL_LIST.typeOrmUser, async (req, res) => {
   res.send(user);
 });
 
-usertRoute.delete(`${URL_LIST.typeOrmUser}/:userId`, async (req, res) => {
+userRoute.delete(`${URL_LIST.typeOrmUser}/:userId`, async (req, res) => {
   const userId = parseInt(req.params.userId);
   const message = await deleteUserOrm(userId);
   res.session.destroy()
@@ -44,4 +44,4 @@ usertRoute.delete(`${URL_LIST.typeOrmUser}/:userId`, async (req, res) => {
 });
 
 
-module.exports = usertRoute;
+module.exports = userRoute;
