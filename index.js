@@ -36,6 +36,8 @@ app.use(
     // for browser security requirement on https
   })
 );
+// testing squash 1
+// testing squash 2
 app.use(authMiddleware);
 app.use(authRoute);
 app.use(commentRoute);
