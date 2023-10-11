@@ -38,6 +38,8 @@ app.use(
 );
 // testing squash 1
 // testing squash 2
+// testing squash 3
+// testing squash 
 app.use(authMiddleware);
 app.use(authRoute);
 app.use(commentRoute);
