@@ -3,15 +3,8 @@
  - Mối quan hệ n-n : 1 user sẽ có nhiều todo, 1 todo thì sẽ có nhiều user
  - Y/c về tài liệu: E-R Diagram
  - Y/c về techincal: Sử dụng ExpressJS, có sử dụng Dockerize application,  - Sử dụng cả 2 cách ORM (typeorm, prisma,….) và dựng QueryBuiler, Db sử dụng Postgresql
-## Note
- - Write Raw SQL Query and use Typeorm, not 2 database
- - Dockerize it with docker-compose and dockerfile(2+ container need both!)
- - Chose Typeorm
-
- ## ORM vs SQL query
- - [TypeOrm](https://typeorm.io/)
- - [Query builder](https://typeorm.io/select-query-builder)
- - [SQL query - Postgres NPM](https://www.npmjs.com/package/pg)
+ ## Documents
+ - [API design for TypeOrm](https://app.swaggerhub.com/apis/LETHANHDAT1993/CrudTODO/1.0.1)
 
  ## Running Docker
  Running database
@@ -25,9 +18,10 @@
  Run app
  - Development: npm run dev
  - Start both the container: sudo docker-compose up
+ - Start only the database for development with npm run dev: sudo docker-compose up db
  - Turn off containers: sudo docker-compose down
 
 
 ### Start the app
  - For development with NPM run dev, the app will use env in .env
- - For running docker, the app will use env in .env.prod
+ - For running docker, the app will use env in .env.prod 

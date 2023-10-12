@@ -7,7 +7,7 @@ const {
   readCommentTodoOrm,
   updateCommentOrm,
   deleteCommentOrm,
-} = require("../../models/typeorm/index");
+} = require("../../models/typeorm/comment");
 
 
 commentRoute.get(URL_LIST.typeOrmComment, async (req, res) => {

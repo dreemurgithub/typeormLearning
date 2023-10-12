@@ -1,7 +1,7 @@
 const userRoute = require("express")();
 const URL_LIST = require("../../constants");
 
-const {deleteUserOrm,readAllUserOrm, readOneUserOrm,UdateOneUserOrm} = require("../../models/typeorm/index")
+const {deleteUserOrm,readAllUserOrm, readOneUserOrm,UdateOneUserOrm} = require("../../models/typeorm/user")
 
 userRoute.get(URL_LIST.typeOrmUser, async (req, res) => {
   const user = await readAllUserOrm();

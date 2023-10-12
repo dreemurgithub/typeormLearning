@@ -17,7 +17,7 @@ RUN npm install
 COPY . .
 
 # Expose the desired port (if your Node.js app listens on a specific port)
-EXPOSE 3001
+EXPOSE 3000
 
 # Environment variables, but should specify on docker-compose.yaml
 

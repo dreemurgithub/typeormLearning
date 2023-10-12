@@ -3,8 +3,8 @@ const authRoute = require("express")();
 const { pool } = require("../../config/postgresJs/index");
 
 const {
-  SignInUserOrm,
-} = require("../../models/typeorm/index");
+  signInUserOrm,addUserOrm
+} = require("../../models/typeorm/auth");
 
 
 authRoute.delete(URL_LIST.logout, async (req, res) => {
@@ -23,13 +23,13 @@ authRoute.post(`${URL_LIST.register}/orm`, async (req, res) => {
     res.status(400).send({ message: "Bad Request" });
     return;
   }
-  SignInUserOrm(userInfor);
+  addUserOrm(userInfor);
   res.send(userInfor);
 });
 
 authRoute.post(`${URL_LIST.login}/orm`, async (req, res) => {
   const { email, password } = req.body;
-  const oneUser = await SignInUserOrm({ email, password });
+  const oneUser = await signInUserOrm({ email, password });
   if (oneUser) {
     const client = await pool.connect();
     req.session.userId = oneUser.id

@@ -2,7 +2,7 @@ const URL_LIST = require("../constants");
 const {
   commentRepository,
   users_todoRepository,
-} = require("../models/typeorm/index");
+} = require("../config/typeorm");
 const urlKeys = Object.keys(URL_LIST);
 const urlRoutes = urlKeys.map((el) => URL_LIST[el]);
 const authMiddleware = async (req, res, next) => {

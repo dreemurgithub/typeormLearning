@@ -15,12 +15,14 @@ useSession.use(
       resave: false,
       saveUninitialized: false,
       cookie: {
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days * 24 hour
         secure: process.env.ENVIROMENT === "DEV" ? "auto" : true,
         sameSite: process.env.ENVIROMENT === "DEV" ? "lax" : "none",
       }, // 30 days
       // for browser security requirement on https
     })
   );
+
+  
   
   module.exports = useSession

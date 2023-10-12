@@ -3,7 +3,7 @@ const isLocalhost = process.env.ENVIROMENT === "DEV";
 
 // const Users = require('./user')
 
-const UsersSchema = require("./UserSchema");
+const UsersSchema = require("./userSchema");
 const users_todoSchema = require("./users_todoSchema");
 const todoSchema = require("./todoSchema");
 const commentSchema = require("./commentSchema");
