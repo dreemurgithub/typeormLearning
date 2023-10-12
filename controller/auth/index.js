@@ -1,6 +1,6 @@
 const URL_LIST = require("../../constants");
 const authRoute = require("express")();
-const { pool } = require("../../models/postgresJs/index");
+const { pool } = require("../../config/postgresJs/index");
 
 const {
   SignInUserOrm,
@@ -33,6 +33,7 @@ authRoute.post(`${URL_LIST.login}/orm`, async (req, res) => {
   if (oneUser) {
     const client = await pool.connect();
     req.session.userId = oneUser.id
+    // req.session.userId = oneUser.id
     client.release();
     res.send(oneUser);
   } else res.status(401).send({message:"Wrong Username/Password"})

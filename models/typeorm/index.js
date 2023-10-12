@@ -1,46 +1,4 @@
-require("dotenv").config();
-const isLocalhost = process.env.ENVIROMENT === "DEV";
-
-// const Users = require('./user')
-
-const UsersSchema = require("./UserSchema");
-const users_todoSchema = require("./users_todoSchema");
-const todoSchema = require("./todoSchema");
-const commentSchema = require("./commentSchema");
-
-// const Users_todo = require('./users_todo')
-// const Todo = require('./todo')
-// const Comment = require('./comment')
-
-const typeorm = require("typeorm");
-const dataSource = new typeorm.DataSource({
-  type: "postgres",
-  port: process.env.POSTGRES_PORT,
-  username: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
-  // database: `${process.env.POSTGRES_DB}2`,
-  database: process.env.POSTGRES_DB,
-  synchronize: true,
-  logging: true,
-  host: isLocalhost ? process.env.POSTGRES_LOCAL : process.env.POSTGRES_HOST, // for docker-compose up db, to just run the database
-  entities: [UsersSchema, users_todoSchema, commentSchema, todoSchema],
-  // host:  process.env.POSTGRES_HOST, // this is for docker-compose up
-});
-const userRepository = dataSource.getRepository("Users");
-const todoRepository = dataSource.getRepository("todo");
-const users_todoRepository = dataSource.getRepository("Users_todo");
-const commentRepository = dataSource.getRepository("comment");
-
-const createTableConnect = () => {
-  dataSource
-    .initialize()
-    .then(() => {
-      console.log("Connected -duh");
-    })
-    .catch(function (error) {
-      console.log("Error: ", error);
-    });
-};
+const {commentRepository,todoRepository,userRepository,users_todoRepository} = require('../../config/typeorm')
 
 const addUserOrm = async ({ username, email, password }) => {
   const newUser = { username, email, password };
@@ -64,8 +22,8 @@ const UdateOneUserOrm = async ({ id, username, email, password }) => {
     .set({ username, email, password })
     .where("id = :id", { id })
     .execute();
-  const newuser = await userRepository.find({ where: { id } });
-  return newuser;
+  const newUser = await userRepository.find({ where: { id } });
+  return newUser;
 };
 
 const deleteUserOrm = async (userId) => {
@@ -101,7 +59,6 @@ const readTodoOrm = async (userId) => {
     where: { user_id: userId },
   });
   const allUser = [];
-  console.log(todo_idList)
   for(let i=0;i<todo_idList.length;i++){
     const todo_id = todo_idList[i].todo_id
     const todo = await todoRepository.find({ where: { todo_id } })
@@ -183,12 +140,6 @@ const deleteCommentOrm = async (commentid) => {
 };
 
 module.exports = {
-  dataSource,
-  userRepository,
-  users_todoRepository,
-  commentRepository,
-  todoRepository,
-  createTableConnect,
   addUserOrm,
   readAllUserOrm,
   SignInUserOrm,

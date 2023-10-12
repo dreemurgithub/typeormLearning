@@ -26,3 +26,8 @@
  - Development: npm run dev
  - Start both the container: sudo docker-compose up
  - Turn off containers: sudo docker-compose down
+
+
+### Start the app
+ - For development with NPM run dev, the app will use env in .env
+ - For running docker, the app will use env in .env.prod
