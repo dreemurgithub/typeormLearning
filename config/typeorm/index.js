@@ -3,10 +3,10 @@ const isLocalhost = process.env.ENVIROMENT === "DEV";
 
 // const Users = require('./user')
 
-const UsersSchema = require("./userSchema");
-const users_todoSchema = require("./users_todoSchema");
-const todoSchema = require("./todoSchema");
-const commentSchema = require("./commentSchema");
+const UsersSchema = require("../../models/typeorm/user/userSchema");
+const users_todoSchema = require("../../models/typeorm/userTodo/usersTodoSchema");
+const todoSchema = require("../../models/typeorm/todo/todoSchema");
+const commentSchema = require("../../models/typeorm/comment/commentSchema");
 
 const typeOrm = require("typeorm");
 const dataSource = new typeOrm.DataSource({

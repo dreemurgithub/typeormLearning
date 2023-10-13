@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev3": "PORT=3001 nodemon index.js",
+    "dev4": "PORT=4001 nodemon index.js",
     "start": "node index.js",
     "debug": "nodemon --inspect index.js"
   },

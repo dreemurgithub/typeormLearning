@@ -16,8 +16,8 @@ const readTodoOrm = async (userId) => {
   
   const addTodoOrm = async ({ userId, task, status }) => {
     const newTodo = { task, status };
-    await todoRepository.save(newTodo);
-    console.log(newTodo);
+    const result = await todoRepository.save(newTodo);
+    console.log(result);
     const newTodoUserLink = { todo_id: newTodo.todo_id, user_id: userId };
     await users_todoRepository.save(newTodoUserLink);
     return newTodo;
@@ -37,9 +37,12 @@ const readTodoOrm = async (userId) => {
   const deleteTodoOrm = async ({ userId, todo_id }) => {
     console.log({ userId, todo_id });
     try {
-      await users_todoRepository.delete({ todo_id, user_id: userId });
-      await todoRepository.delete({ todo_id });
-      await commentRepository.delete({ todo_id });
+      const resComment = await commentRepository.delete({ todo_id });
+      const resUserTodo = await users_todoRepository.delete({ todo_id, user_id: userId });
+      const resTodo = await todoRepository.delete({ todo_id });
+      console.log(resComment)
+      console.log(resUserTodo)
+      console.log(resTodo)
       return { message: "Delete successful" };
     } catch (error) {
       console.log(error);

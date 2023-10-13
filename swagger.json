@@ -1,0 +1,534 @@
+{
+    "openapi": "3.0.0",
+    "servers": [
+        {
+            "description": "SwaggerHub API Auto Mocking",
+            "url": "https://virtserver.swaggerhub.com/LETHANHDAT1993/CrudTODO/1.0.0"
+        },
+        {
+            "description": "SwaggerHub API CrudTodo - SQL Database",
+            "url": "http://localhost:3000"
+        },
+        {
+            "description": "SwaggerHubSwaggerHub API CrudTodo - SQL Database",
+            "url": "http://localhost:3000"
+        }
+    ],
+    "info": {
+        "version": "1.0.0",
+        "title": "Crudtodo",
+        "description": "Requre authentication for all routes, except for /login, /register and /logout. Only user can delete their own account and their contents."
+    },
+    "paths": {
+        "/sql/user": {
+            "get":
+      tags:
+        - Require authentication
+      description: Read all user
+      operationId: readAllUser
+      responses:
+        '200':
+          description: get All user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/allUsersRes'
+    "put":
+      tags:
+        - Only the User can update their own todo/comment
+      description: Require req.session.userId === req.body.id
+      operationId: updateUser
+      responses:
+        '200':
+          description: successfully change infors
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/userReq'
+                  - type: object
+                    properties:
+                      id: 
+                        type: integer
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                  - $ref: '#/components/schemas/userReq'
+                  - type: object
+                    properties:
+                      id: 
+                        type: integer
+        },
+        "/sql/user/{id} ": {
+            "parameters":
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+    "get":{
+      tags:
+        - Require authentication
+      description: Read one user's infor
+      operationId: readOneUser
+      responses:
+        '200':
+          description: Request are accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneUserRes'
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'}
+    "delete":{
+      tags:
+        - Delete user
+      description: If the request method is delete, the ID must be the same to req.session.userId.
+      operationId: deleteUser
+      responses:
+        '200':
+          description: Request are accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'}
+        },
+        "/sql/todo ": {
+            "get":{
+      tags:
+        - Require authentication
+      description: Read all todo base on req.session.userId
+      operationId: ReadTodoUser
+      responses:
+        '200':
+          description: Get All todo of users
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/comment'
+                  - type: object
+                    properties:
+                      commentid:
+                        type: integer
+                      author:
+                        type: integer
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes' },
+    "post":{
+      tags:
+        - Require authentication
+      description: Create post on req.session.userId
+      operationId: makeNewPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref : '#/components/schemas/todoReq'
+      responses:
+        '200':
+          description: New todo created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref : '#/components/schemas/todoRes'
+                  - type: object
+                    properties:
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'},
+    "put":{
+      tags:
+        - Only the User can update their own todo/comment
+      description: Require req.session.userId === req.body.id
+      responses:
+        '200':
+          description: Update todo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/todoRes'
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                  - $ref: '#/components/schemas/todoReq'
+                  - type: object
+                    properties:
+                      todo_id:
+                        type: integer}
+        },
+        "/sql/todo/delete ": {
+            "put":{
+      tags:
+        - Only the User can update their own todo/comment
+      description: Require req.session.userId === req.body.id
+      operationId: deleteTodo
+      responses:
+        '200':
+          description: successfully delete comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+        '400':
+          description: No comment to delete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commentid: 
+                  type: integer}
+        },
+        "/sql/comment ": {
+            "get":{
+      tags:
+        - Require authentication
+      description: Read all user
+      operationId: readAllUserComment
+      responses:
+        '200':
+          description: Read all user's comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commentList'
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'},
+    "post":{
+      tags:
+        - Require authentication
+      description: Make new comment
+      responses:
+        '200':
+            description: New comment created
+            content:
+              application/json:
+                schema:
+                  allOf:
+                  - $ref: '#/components/schemas/comment'
+                  - type: object
+                    properties:
+                      created_at:
+                        type: string
+                        format: date-time
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/comment'}
+,
+    "put":{
+      tags:
+          - Only the User can update their own todo/comment
+      description: Require req.session.userId === req.body.id
+      responses:
+        '200':
+            description: Update comment
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/messageRes'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'          
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/comment'
+        }},
+        "/sql/comment/delete ": {
+            "put":{
+      tags:
+        - Only the User can update their own todo/comment
+      description: Require req.session.userId === req.body.id
+      operationId: deleteComment
+      responses:
+        '200':
+          description: Successfully delete comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+        '400':
+          description: No comment to delete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commentid:
+                  type: integer
+        },
+        "/sql/comment/{todo_id} ": {
+            "parameters":
+        - name: todo_id
+          in: path
+          description: ID of the todo to read comment in
+          required: true
+          schema:
+            type: integer},
+    "get":{
+      tags:
+        - Require authentication
+      description: Read all user
+      operationId: readAllTodoComment
+      responses:
+        '200':
+          description: Read all todo infor from todo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commentList'
+        '400':
+          description: No todo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+        '401':
+          description: Block by middleware
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'}
+        },
+        "/sql/register ": {
+            "post":
+      tags:
+        - Authentication
+      operationId: newUser
+      responses:
+        '200':
+          description: Successful register
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/userReq'
+                - type: object
+                  properties:
+                    id: 
+                      type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+        
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userReq'
+        },
+        "/sql/login ": {
+            "post":
+      tags:
+        - Authentication
+      operationId: login
+      responses:
+        '200':
+          description: Login and create session for authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userReq'
+        '400':
+          description: No comment to delete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userReq'
+        },
+        "/sql/logout ": {
+            "delete": {
+      tags:
+        - Authentication
+      operationId: logout
+      responses:
+        '200':
+          description: Successful delete comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/messageRes'
+            }
+        },
+        "components": {
+  schemas:
+    allUsersRes:
+      type: array
+      items: 
+        $ref: '#/components/schemas/oneUserRes'
+    oneUserRes:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          description: Created time
+        updated_at:
+          type: string
+          format: date-time
+          description: Udated time
+    todoRes:
+      type: object
+      properties:
+        task:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          description: Created time
+        updated_at:
+          type: string
+          format: date-time
+          description: Udated time
+    messageRes:
+      type: object
+      properties:
+        message: 
+          type: string
+    userReq:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+    comment:
+      type: object
+      properties:
+        todo_id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+    commentList: 
+      type: array
+      items: 
+        $ref: '#/components/schemas/comment'
+    todoReq:
+      type: object
+      properties:
+        task:
+          type: string
+        status:
+          type: string
+        }
+    }

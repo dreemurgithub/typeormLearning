@@ -2,8 +2,8 @@ const {commentRepository,todoRepository,userRepository,users_todoRepository} = r
 
 const addCommentOrm = async ({ title, body, todo_id, userId }) => {
     const newComment = { title, body, todo_id, author: userId };
-    console.log(newComment);
-    await commentRepository.save(newComment);
+    const result = await commentRepository.save(newComment);
+    console.log(result);
     return newComment;
   };
   
@@ -19,19 +19,21 @@ const addCommentOrm = async ({ title, body, todo_id, userId }) => {
   };
   
   const updateCommentOrm = async ({ title, body, commentid, userId }) => {
-    await commentRepository
+    const result = await commentRepository
       .createQueryBuilder("comment")
       .update({ title, body, commentid, author: userId })
       .set({ title, body })
       .where("commentid = :commentid", { commentid })
       .execute();
+    console.log(result)
     const newComment = await commentRepository.find({ where: { commentid } });
     return newComment;
   };
   
   const deleteCommentOrm = async (commentid) => {
     try {
-      await commentRepository.delete({ commentid });
+      const result = await commentRepository.delete({ commentid });
+      console.log(result)
       return { message: "Delete successfully" };
     } catch (err) {
       console.log(err);

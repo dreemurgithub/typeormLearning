@@ -4,7 +4,7 @@ const { pool } = require("../../config/postgresJs/index");
 
 const {
   signInUserOrm,addUserOrm
-} = require("../../models/typeorm/auth");
+} = require("../../models/typeorm/user/auth");
 
 
 authRoute.delete(URL_LIST.logout, async (req, res) => {

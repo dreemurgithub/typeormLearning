@@ -16,7 +16,8 @@
  - sudo ss -lptn 'sport = :5432'
  - sudo kill {pip ID}
  Run app
- - Development: npm run dev
+ - Development port 3001: npm run dev3 => Run app at port 3001
+ - Port 4001: npm run dev4 => Run app at port 4001
  - Start both the container: sudo docker-compose up
  - Start only the database for development with npm run dev: sudo docker-compose up db
  - Turn off containers: sudo docker-compose down

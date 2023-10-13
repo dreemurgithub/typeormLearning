@@ -12,12 +12,13 @@ const {commentRepository,todoRepository,userRepository,users_todoRepository} = r
   };
   
   const UdateOneUserOrm = async ({ id, username, email, password }) => {
-    await userRepository
+    const result = await userRepository
       .createQueryBuilder("users")
       .update({ id })
       .set({ username, email, password })
       .where("id = :id", { id })
       .execute();
+      console.log(result)
     const newUser = await userRepository.find({ where: { id } });
     return newUser;
   };
