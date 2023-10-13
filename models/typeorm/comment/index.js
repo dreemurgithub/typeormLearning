@@ -1,45 +1,97 @@
-const {commentRepository,todoRepository,userRepository,users_todoRepository} = require("../../../config/typeorm");
+const {
+  commentRepository,
+  todoRepository,
+  userRepository,
+  users_todoRepository,
+} = require("../../../config/typeorm");
+const {
+  queryAddComment,
+  queryReadCommentUser,
+  queryReadCommentTodo,
+  queryUpdateComment,
+  queryDeleteComment,
+} = require("../../queryHelper/index");
 
 const addCommentOrm = async ({ title, body, todo_id, userId }) => {
-    const newComment = { title, body, todo_id, author: userId };
-    const result = await commentRepository.save(newComment);
-    console.log(result);
-    return newComment;
-  };
-  
-  const readCommentUserOrm = async (userId) => {
-    const allComment = await commentRepository.find({
-      where: { author: userId },
-    });
-    return allComment;
-  };
-  const readCommentTodoOrm = async (todo_id) => {
-    const allComment = await commentRepository.find({ where: { todo_id } });
-    return allComment;
-  };
-  
-  const updateCommentOrm = async ({ title, body, commentid, userId }) => {
-    const result = await commentRepository
-      .createQueryBuilder("comment")
-      .update({ title, body, commentid, author: userId })
-      .set({ title, body })
-      .where("commentid = :commentid", { commentid })
-      .execute();
-    console.log(result)
-    const newComment = await commentRepository.find({ where: { commentid } });
-    return newComment;
-  };
-  
-  const deleteCommentOrm = async (commentid) => {
-    try {
-      const result = await commentRepository.delete({ commentid });
-      console.log(result)
-      return { message: "Delete successfully" };
-    } catch (err) {
-      console.log(err);
-      return { message: "Bad request" };
-    }
-  };
-  
+  if (!title || !body || !todo_id || !userId) {
+    return {
+      success: false,
+      message: "Bad Request",
+    };
+  }
+  const result = await queryAddComment({ title, body, todo_id, userId });
+  return {
+    success: true,
+    data: result
+  };};
 
-  module.exports = {addCommentOrm, readCommentTodoOrm, readCommentUserOrm, updateCommentOrm, deleteCommentOrm}
+const readCommentUserOrm = async (userId) => {
+  const allComment = await queryReadCommentUser(userId);
+  return allComment;
+};
+const readCommentTodoOrm = async (todo_id) => {
+  const todo_idNum = parseInt(todo_id);
+  if (!isNaN(todo_idNum)) {
+    const userList = await queryReadCommentTodo(todo_idNum);
+    if (userList.length) {
+      return {
+        success: true,
+        data: userList[0],
+      };
+    } else
+      return {
+        success: false,
+        message: "No comment here",
+      };
+  }
+  return {
+    success: false,
+    message: "Bad Request",
+  };
+};
+
+const updateCommentOrm = async ({ title, body, commentid, userId }) => {
+  if (!title || !body || !commentid || !userId) {
+    return {
+      success: false,
+      message: "Bad Request",
+    };
+  }
+
+  const result = await queryUpdateComment({ title, body, commentid, userId });
+  if(result.affected) return {
+    success: true,
+    data: { title, body, commentid, userId },
+  } 
+  else return {
+    success: false,
+    message: "Can't update comment"
+  }
+};
+
+const deleteCommentOrm = async (commentid) => {
+  if (!commentid || isNaN(parseInt(commentid))) {
+    return {
+      success: false,
+      message: "Bad Request",
+    };
+  }
+  const result = await queryDeleteComment(commentid);
+  if (result.affected)
+    return {
+      success: true,
+      message: "Comment deleted"
+    }
+  else return {
+    success: false,
+    message: "Something wrong"
+  }
+};
+
+module.exports = {
+  addCommentOrm,
+  readCommentTodoOrm,
+  readCommentUserOrm,
+  updateCommentOrm,
+  deleteCommentOrm,
+};

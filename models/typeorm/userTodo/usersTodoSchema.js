@@ -1,6 +1,6 @@
 const EntitySchema = require("typeorm").EntitySchema
 
-const users_todoSchema = new EntitySchema({
+const usersTodoSchema = new EntitySchema({
     name: "Users_todo",
     tableName: "users_todo",
     columns: {
@@ -46,4 +46,4 @@ const users_todoSchema = new EntitySchema({
     }
 })
 
-module.exports = users_todoSchema;
+module.exports = usersTodoSchema;

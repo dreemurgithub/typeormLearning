@@ -1,17 +1,18 @@
 const userRoute = require("express")();
-const URL_LIST = require("../../constants");
+const {URL_LIST} = require("../../constants");
 
 const {deleteUserOrm,readAllUserOrm, readOneUserOrm,UdateOneUserOrm} = require("../../models/typeorm/user")
 
 userRoute.get(URL_LIST.typeOrmUser, async (req, res) => {
-  const user = await readAllUserOrm();
-  res.send(user);
+  const result = await readAllUserOrm();
+  res.send(result);
 });
 
 userRoute.get(`${URL_LIST.typeOrmUser}/:id`, async (req, res) => {
-  const id = parseInt(req.params.id);
-  const user = await readOneUserOrm(id);
-  res.send(user);
+  const id = req.params.id
+  const result = await readOneUserOrm(id);
+  if (result.success) res.status(200).send(result.data);
+  else res.status(400).send({ message: result.message });
 });
 
 userRoute.put(URL_LIST.typeOrmUser, async (req, res) => {
@@ -21,18 +22,22 @@ userRoute.put(URL_LIST.typeOrmUser, async (req, res) => {
     password: req.body.password,
     id: req.body.id,
   };
-  if (
-    !userInfor.email ||
-    !userInfor.username ||
-    !userInfor.password ||
-    !userInfor.id
-  ) {
-    res.status(400).send({ message: "Bad Request" });
-    return;
-  }
+  // if (
+  //   !userInfor.email ||
+  //   !userInfor.username ||
+  //   !userInfor.password ||
+  //   !userInfor.id
+  // ) {
+  //   res.status(400).send({ message: "Bad Request" });
+  //   return;
+  // }
 
-  const user = await UdateOneUserOrm(userInfor);
-  res.send(user);
+  // const user = await UdateOneUserOrm(userInfor);
+  // res.send(user);
+
+  const result = await UdateOneUserOrm(userInfor);
+  if (result.success) res.status(200).send(result.data);
+  else res.status(400).send({ message: result.message });
 });
 
 userRoute.delete(`${URL_LIST.typeOrmUser}/:userId`, async (req, res) => {

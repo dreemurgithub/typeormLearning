@@ -2,7 +2,7 @@ const {
   commentRepository,
   todoRepository,
   userRepository,
-  users_todoRepository,
+  usersTodoRepository,
 } = require("../../config/typeorm");
 
 const queryAddUser = async ({ username, email, password }) => {
@@ -11,9 +11,8 @@ const queryAddUser = async ({ username, email, password }) => {
 };
 
 const queryReadLogin = async ({ email, password }) => {
-  const user = await userRepository.findOne({ where: { email } });
-  if (password === user.password) return user;
-  return null;
+  const user = await userRepository.find({ where: { email ,password} });
+  return user;
 };
 
 const queryReadAllUser = async () => {
@@ -22,23 +21,27 @@ const queryReadAllUser = async () => {
 };
 
 const queryReadOneUser = async (id) => {
-  const users = await userRepository.find({ where: { id } });
-  return users[0];
+  const userList = await userRepository.find({ where: { id } });
+  return userList;
 };
 
+const queryReadTodoInUser = async (id) => {
+    const todoList = await usersTodoRepository.find({where: {user_id: id}})
+    return todoList
+}
+
 const queryUdateOneUser = async ({ id, username, email, password }) => {
-  await userRepository
+  const result = await userRepository
     .createQueryBuilder("users")
     .update({ id })
     .set({ username, email, password })
     .where("id = :id", { id })
     .execute();
-  const newUser = await userRepository.find({ where: { id } });
-  return newUser;
+  return result
 };
 
 const queryDeleteUser = async (userId) => {
-  const arrTodoIdObj = await users_todoRepository.find({ user_id: userId });
+  const arrTodoIdObj = await queryReadTodoInUser(userId);
   const arrTodoId = [];
   for (let i = 0; i < arrTodoIdObj.length; i++)
     arrTodoId.push(arrTodoIdObj[i].todo_id);
@@ -47,9 +50,12 @@ const queryDeleteUser = async (userId) => {
     for (let i = 0; i < arrTodoId.length; i++) {
       let todo_id = arrTodoId[i];
       console.log(todo_id);
-      await commentRepository.delete({ todo_id });
-      await users_todoRepository.delete({ user_id: userId });
-      await todoRepository.delete({ todo_id });
+    //   await commentRepository.delete({ todo_id });
+    //   await usersTodoRepository.delete({ user_id: userId });
+    //   await todoRepository.delete({ todo_id });
+
+      await queryDeleteTodo({userId, todo_id})
+      await userRepository.delete({where: {id: userId}})
     }
     return { message: "Delete successfully" };
   } catch (err) {
@@ -64,7 +70,7 @@ const queryReadOneTodoId = async (todo_id) => {
 };
 
 const queryreadTodoUser = async (userId) => {
-  const todo_idList = await users_todoRepository.find({
+  const todo_idList = await usersTodoRepository.find({
     select: ["todo_id"],
     where: { user_id: userId },
   });
@@ -82,9 +88,10 @@ const queryAddTodo = async ({ userId, task, status }) => {
   const result = await todoRepository.save(newTodo);
   console.log(result);
   const newTodoUserLink = { todo_id: newTodo.todo_id, user_id: userId };
-  await users_todoRepository.save(newTodoUserLink);
+  await usersTodoRepository.save(newTodoUserLink);
   return newTodo;
 };
+
 
 const queryUpdateTodo = async ({ todo_id, task, status }) => {
   await todoRepository
@@ -100,7 +107,7 @@ const queryUpdateTodo = async ({ todo_id, task, status }) => {
 const queryDeleteTodo = async ({ userId, todo_id }) => {
   console.log({ userId, todo_id });
   try {
-    await users_todoRepository.delete({ todo_id, user_id: userId });
+    await usersTodoRepository.delete({ todo_id, user_id: userId });
     await todoRepository.delete({ todo_id });
     await commentRepository.delete({ todo_id });
     return { message: "Delete successful" };
@@ -112,9 +119,8 @@ const queryDeleteTodo = async ({ userId, todo_id }) => {
 
 const queryAddComment = async ({ title, body, todo_id, userId }) => {
   const newComment = { title, body, todo_id, author: userId };
-  console.log(newComment);
-  await commentRepository.save(newComment);
-  return newComment;
+  const result = await commentRepository.save(newComment);
+  return result;
 };
 
 const queryReadCommentUser = async (userId) => {
@@ -140,13 +146,8 @@ const queryUpdateComment = async ({ title, body, commentid, userId }) => {
 };
 
 const queryDeleteComment = async (commentid) => {
-  try {
-    await commentRepository.delete({ commentid });
-    return { message: "Delete successfully" };
-  } catch (err) {
-    console.log(err);
-    return { message: "Bad request" };
-  }
+    const result = await commentRepository.delete({ commentid });
+    return result
 };
 
 module.exports = {
@@ -157,6 +158,7 @@ module.exports = {
   queryDeleteComment,
 
   queryAddUser,
+  queryReadLogin,
   queryReadOneUser,
   queryReadOneTodoId,
   queryReadAllUser,

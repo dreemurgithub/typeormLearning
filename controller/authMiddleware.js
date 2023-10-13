@@ -1,4 +1,4 @@
-const URL_LIST = require("../constants");
+const {URL_LIST} = require("../constants");
 const {
   commentRepository,
   users_todoRepository,
@@ -16,6 +16,7 @@ const authMiddleware = async (req, res, next) => {
   const userId = req.session.userId; // authenticated user
   // allow POST and GET for authenticated user, new todo/comment are base on the userId
   if (autoPass || ((req.method === "GET" || req.method === "POST") && userId)) {
+    console.log(userId)
     next();
     return;
   }
@@ -23,7 +24,7 @@ const authMiddleware = async (req, res, next) => {
 
   // allow update if comment's author === userId and todo_id is in correct comment
   // allow delete if comment's author === userId, and there is no todo_id
-  if (commentid && (req.method === "PUT" || req.method === "DELETE")) {
+  if ((commentid && !isNaN(parseInt(commentid)) ) && (req.method === "PUT" || req.method === "DELETE")) {
     const urlAllow = await checkAuthSession("comment", {
       userId,
       commentid,
@@ -39,7 +40,7 @@ const authMiddleware = async (req, res, next) => {
   // allow edit/delete if users is authenticated + todo belong to user
 
   if (
-    !commentid &&
+    (!commentid || isNaN(parseInt(commentid)) ) &&
     todo_id &&
     (req.method === "PUT" || req.method === "DELETE")
   ) {
@@ -56,7 +57,7 @@ const authMiddleware = async (req, res, next) => {
   }
   // allow delete and edit if userId === id
   if (
-    !commentid &&
+    (!commentid || isNaN(parseInt(commentid)) )&&
     !todo_id &&
     id &&
     (req.method === "PUT" || req.method === "DELETE")
@@ -98,9 +99,9 @@ const checkAuthSession = async (table, { userId, commentid, todo_id, id }) => {
       .createQueryBuilder()
       .where({ commentid })
       .getOne();
-    if (commentAllow.todo_id === todo_id && commentAllow.author === userId)
+    if (commentAllow && commentAllow.todo_id === todo_id && commentAllow.author === userId)
       return [URL_LIST.typeOrmComment];
-    if (!todo_id && commentAllow.author === userId)
+    if (commentAllow && !todo_id && commentAllow.author === userId)
       return [`${URL_LIST.typeOrmComment}/delete`];
     return [];
   }

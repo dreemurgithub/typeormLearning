@@ -4,7 +4,7 @@ const isLocalhost = process.env.ENVIROMENT === "DEV";
 // const Users = require('./user')
 
 const UsersSchema = require("../../models/typeorm/user/userSchema");
-const users_todoSchema = require("../../models/typeorm/userTodo/usersTodoSchema");
+const usersTodoSchema = require("../../models/typeorm/userTodo/usersTodoSchema");
 const todoSchema = require("../../models/typeorm/todo/todoSchema");
 const commentSchema = require("../../models/typeorm/comment/commentSchema");
 
@@ -19,12 +19,12 @@ const dataSource = new typeOrm.DataSource({
   synchronize: true,
   logging: true,
   host: isLocalhost ? process.env.POSTGRES_LOCAL : process.env.POSTGRES_HOST, // for docker-compose up db, to just run the database
-  entities: [UsersSchema, users_todoSchema, commentSchema, todoSchema],
+  entities: [UsersSchema, usersTodoSchema, commentSchema, todoSchema],
   // host:  process.env.POSTGRES_HOST, // this is for docker-compose up
 });
 const userRepository = dataSource.getRepository("Users");
 const todoRepository = dataSource.getRepository("todo");
-const users_todoRepository = dataSource.getRepository("Users_todo");
+const usersTodoRepository = dataSource.getRepository("Users_todo");
 const commentRepository = dataSource.getRepository("comment");
 
 const createTableConnect = () => {
@@ -41,7 +41,7 @@ const createTableConnect = () => {
 module.exports = {
   createTableConnect,
   userRepository,
-  users_todoRepository,
+  usersTodoRepository,
   commentRepository,
   todoRepository,
 };

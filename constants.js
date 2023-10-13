@@ -7,5 +7,7 @@ const URL_LIST = {
     logout: '/logout',
     register: '/register'
 }
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-module.exports = URL_LIST
+
+module.exports = {URL_LIST, emailRegex}

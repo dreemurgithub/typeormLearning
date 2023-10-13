@@ -1,11 +1,8 @@
-const URL_LIST = require("../../constants");
+const { URL_LIST } = require("../../constants");
 const authRoute = require("express")();
 const { pool } = require("../../config/postgresJs/index");
 
-const {
-  signInUserOrm,addUserOrm
-} = require("../../models/typeorm/user/auth");
-
+const { signInUserOrm, addUserOrm } = require("../../models/typeorm/user/auth");
 
 authRoute.delete(URL_LIST.logout, async (req, res) => {
   req.session.destroy();
@@ -14,30 +11,21 @@ authRoute.delete(URL_LIST.logout, async (req, res) => {
 });
 
 authRoute.post(`${URL_LIST.register}/orm`, async (req, res) => {
-  const userInfor = {
-    email: req.body.email,
-    username: req.body.username,
-    password: req.body.password,
-  };
-  if (!userInfor.email || !userInfor.username || !userInfor.password) {
-    res.status(400).send({ message: "Bad Request" });
-    return;
-  }
-  addUserOrm(userInfor);
-  res.send(userInfor);
+  const result = await addUserOrm(req.body);
+  if (result.success) res.status(200).send(result.data);
+  else res.status(400).send({ message: result.message });
 });
 
 authRoute.post(`${URL_LIST.login}/orm`, async (req, res) => {
   const { email, password } = req.body;
-  const oneUser = await signInUserOrm({ email, password });
-  if (oneUser) {
+  const result = await signInUserOrm({ email, password });
+  if (result.success) {
     const client = await pool.connect();
-    req.session.userId = oneUser.id
-    // req.session.userId = oneUser.id
+    req.session.userId = result.data.id;
+    // req.session.userId = result.id
     client.release();
-    res.send(oneUser);
-  } else res.status(401).send({message:"Wrong Username/Password"})
-
+    res.send(result.data);
+  } else res.status(401).send({ message: result.message });
 });
 
 module.exports = authRoute;

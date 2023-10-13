@@ -1,5 +1,5 @@
 const todoRoute = require("express")();
-const URL_LIST = require("../../constants");
+const {URL_LIST} = require("../../constants");
 const {addTodoOrm, updateTodoOrm, deleteTodoOrm, readTodoOrm} = require("../../models/typeorm/todo")
 
 todoRoute.get(URL_LIST.typeOrmTodo, async (req, res) => {
