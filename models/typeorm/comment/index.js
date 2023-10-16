@@ -58,7 +58,7 @@ const updateCommentOrm = async ({ title, body, commentid, userId }) => {
   }
 
   const result = await queryUpdateComment({ title, body, commentid, userId });
-  if (result.affected)
+  if (result.length)
     return {
       success: true,
       data: { title, body, commentid, userId },

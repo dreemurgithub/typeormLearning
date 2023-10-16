@@ -8,6 +8,7 @@ const {
 const queryAddUser = async ({ username, email, password }) => {
   const newUser = { username, email, password };
   await userRepository.save(newUser);
+  return newUser
 };
 
 const queryReadLogin = async ({ email, password }) => {
@@ -22,7 +23,7 @@ const queryReadAllUser = async () => {
 
 const queryReadOneUser = async (id) => {
   const userList = await userRepository.find({ where: { id } });
-  return userList[0];
+  return userList;
 };
 
 const queryReaduserInTodo = async (todo_id) => {

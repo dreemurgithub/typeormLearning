@@ -1,8 +1,8 @@
-const {URL_LIST} = require("../constants");
-const {
-  commentRepository,
-  usersTodoRepository,
-} = require("../config/typeorm");
+const { URL_LIST } = require("../constants");
+const { commentRepository, usersTodoRepository } = require("../config/typeorm");
+const { readCommentUserOrm } = require("../models/typeorm/comment");
+const { readOwnTodoOrm } = require("../models/typeorm/todo");
+const { readOneUserOrm } = require("../models/typeorm/user");
 const urlKeys = Object.keys(URL_LIST);
 const urlRoutes = urlKeys.map((el) => URL_LIST[el]);
 const authMiddleware = async (req, res, next) => {
@@ -16,97 +16,54 @@ const authMiddleware = async (req, res, next) => {
   const userId = req.session.userId; // authenticated user
   // allow POST and GET for authenticated user, new todo/comment are base on the userId
   if (autoPass || ((req.method === "GET" || req.method === "POST") && userId)) {
-    console.log(userId)
+    console.log(userId);
     next();
     return;
   }
   const { commentid, todo_id, id } = req.body;
-
-  // allow update if comment's author === userId and todo_id is in correct comment
-  // allow delete if comment's author === userId, and there is no todo_id
-  if ((commentid && !isNaN(parseInt(commentid)) ) && (req.method === "PUT" || req.method === "DELETE")) {
-    const urlAllow = await checkAuthSession("comment", {
-      userId,
-      commentid,
-      todo_id,
-      id,
-    });
-    if (urlAllow.includes(req.url)) {
+  if (commentid && req.method === "PUT" && !todo_id && !id) {
+    const allowCommentId = await allowComment(userId);
+    if (allowCommentId.includes(commentid)) {
       next();
       return;
     }
   }
 
-  // allow edit/delete if users is authenticated + todo belong to user
+  if (todo_id && req.method === "PUT" && !commentid && !id) {
+    const allowTodoId = await allowTodo(userId);
+    if (allowTodoId.includes(todo_id)) {
+      next();
+      return;
+    }
+  }
+  if (id && req.method === "PUT" && !commentid && !todo_id) {
+    if (id === userId) {
+      next();
+      return;
+    }
+  }
 
-  if (
-    (!commentid || isNaN(parseInt(commentid)) ) &&
-    todo_id &&
-    (req.method === "PUT" || req.method === "DELETE")
-  ) {
-    const urlAllow = await checkAuthSession("todo", {
-      userId,
-      commentid,
-      todo_id,
-      id,
-    });
-    if (urlAllow.includes(req.url)) {
-      next();
-      return;
-    }
-  }
-  // allow delete and edit if userId === id
-  if (
-    (!commentid || isNaN(parseInt(commentid)) )&&
-    !todo_id &&
-    id &&
-    (req.method === "PUT" || req.method === "DELETE")
-  ) {
-    const urlAllow = await checkAuthSession("users", {
-      userId,
-      commentid,
-      todo_id,
-      id,
-    });
-    if (urlAllow.includes(req.url)) {
-      next();
-      return;
-    }
-  }
   res.status(401).send({ message: "Not Allowed" });
 };
 
-const checkAuthSession = async (table, { userId, commentid, todo_id, id }) => {
-  if (table === "users") {
-    if (id === userId)
-      return [`${URL_LIST.typeOrmUser}/delete`, URL_LIST.typeOrmUser,`${URL_LIST.typeOrmUser}/${id}`];
-    else return [];
-  }
-  if (table === "todo") {
-    const todosArr = await usersTodoRepository
-      .createQueryBuilder()
-      .where({ user_id: userId })
-      .getMany();
-    const todoArrId = [];
-    for (let i = 0; i < todosArr.length; i++)
-      todoArrId.push(todosArr[i].todo_id);
-    if (todoArrId.includes(todo_id))
-      return [`${URL_LIST.typeOrmTodo}/delete`, URL_LIST.typeOrmTodo];
-    else return [];
-  }
-  if (table === "comment") {
-    const commentAllow = await commentRepository
-      .createQueryBuilder()
-      .where({ commentid })
-      .getOne();
-    if (commentAllow && commentAllow.todo_id === todo_id && commentAllow.author === userId)
-      return [URL_LIST.typeOrmComment];
-    if (commentAllow && !todo_id && commentAllow.author === userId)
-      return [`${URL_LIST.typeOrmComment}/delete`];
-    return [];
-  }
+const allowComment = async (userId) => {
+  const commentResult = await readCommentUserOrm(userId);
+  const commentListObj = commentResult.success ? commentResult.data : [];
+  const allowCommentid = [];
+  commentListObj.forEach((comment) => {
+    if (comment) allowCommentid.push(comment.commentid);
+  });
+  return allowCommentid;
+};
 
-  return [];
+const allowTodo = async (userId) => {
+  const todoResult = await readOwnTodoOrm(userId);
+  const todoListObj = todoResult.success ? todoResult.data : [];
+  const allowTodoId = [];
+  todoListObj.forEach((todo) => {
+    if (todo) allowTodoId.push(todo.todo_id);
+  });
+  return allowTodoId;
 };
 
 module.exports = authMiddleware;
