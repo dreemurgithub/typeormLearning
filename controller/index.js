@@ -11,7 +11,7 @@ controller.use((err, req, res, next) => { // exception handler for all
 });
 
 controller.use(authRoute);
-controller.use(authMiddleware); // block for authenticated user only
+// controller.use(authMiddleware); // block for authenticated user only
 controller.use(commentRoute);
 controller.use(todoRoute);
 controller.use(userRoute);

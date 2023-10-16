@@ -2,10 +2,10 @@ const { URL_LIST } = require("../../constants");
 const authRoute = require("express")();
 const { pool } = require("../../config/postgresJs/index");
 
-const { signInUserOrm, addUserOrm } = require("../../models/typeorm/user/auth");
+const { signInUserOrm, addUserOrm } = require("../../models/typeorm/auth");
 
 authRoute.delete(URL_LIST.logout, async (req, res) => {
-  req.session.destroy();
+  if(req.session) req.session.destroy();
   res.clearCookie("connect.sid");
   res.send({ message: "Logout" });
 });

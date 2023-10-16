@@ -1,5 +1,5 @@
 const { userRepository } = require("../../../config/typeorm");
-const {queryReadLogin, queryAddUser} = require('../../queryHelper/index')
+const {queryReadLogin, queryAddUser} = require('../../queryHelper')
 const {emailRegex} = require('../../../constants')
 
 const addUserOrm = async ({ username, email, password }) => {

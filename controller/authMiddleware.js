@@ -1,7 +1,7 @@
 const {URL_LIST} = require("../constants");
 const {
   commentRepository,
-  users_todoRepository,
+  usersTodoRepository,
 } = require("../config/typeorm");
 const urlKeys = Object.keys(URL_LIST);
 const urlRoutes = urlKeys.map((el) => URL_LIST[el]);
@@ -83,7 +83,7 @@ const checkAuthSession = async (table, { userId, commentid, todo_id, id }) => {
     else return [];
   }
   if (table === "todo") {
-    const todosArr = await users_todoRepository
+    const todosArr = await usersTodoRepository
       .createQueryBuilder()
       .where({ user_id: userId })
       .getMany();

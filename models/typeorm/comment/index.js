@@ -1,16 +1,10 @@
 const {
-  commentRepository,
-  todoRepository,
-  userRepository,
-  users_todoRepository,
-} = require("../../../config/typeorm");
-const {
   queryAddComment,
   queryReadCommentUser,
   queryReadCommentTodo,
   queryUpdateComment,
   queryDeleteComment,
-} = require("../../queryHelper/index");
+} = require("../../queryHelper");
 
 const addCommentOrm = async ({ title, body, todo_id, userId }) => {
   if (!title || !body || !todo_id || !userId) {
@@ -22,12 +16,17 @@ const addCommentOrm = async ({ title, body, todo_id, userId }) => {
   const result = await queryAddComment({ title, body, todo_id, userId });
   return {
     success: true,
-    data: result
-  };};
+    data: result,
+  };
+};
 
 const readCommentUserOrm = async (userId) => {
-  const allComment = await queryReadCommentUser(userId);
-  return allComment;
+  try {
+    const allComment = await queryReadCommentUser(userId);
+    return { success: true, data: allComment };
+  } catch {
+    return { message: "Something wrong", success: false };
+  }
 };
 const readCommentTodoOrm = async (todo_id) => {
   const todo_idNum = parseInt(todo_id);
@@ -59,14 +58,16 @@ const updateCommentOrm = async ({ title, body, commentid, userId }) => {
   }
 
   const result = await queryUpdateComment({ title, body, commentid, userId });
-  if(result.affected) return {
-    success: true,
-    data: { title, body, commentid, userId },
-  } 
-  else return {
-    success: false,
-    message: "Can't update comment"
-  }
+  if (result.affected)
+    return {
+      success: true,
+      data: { title, body, commentid, userId },
+    };
+  else
+    return {
+      success: false,
+      message: "Can't update comment",
+    };
 };
 
 const deleteCommentOrm = async (commentid) => {
@@ -80,12 +81,13 @@ const deleteCommentOrm = async (commentid) => {
   if (result.affected)
     return {
       success: true,
-      message: "Comment deleted"
-    }
-  else return {
-    success: false,
-    message: "Something wrong"
-  }
+      message: "Comment deleted",
+    };
+  else
+    return {
+      success: false,
+      message: "Something wrong",
+    };
 };
 
 module.exports = {

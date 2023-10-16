@@ -11,7 +11,7 @@ const queryAddUser = async ({ username, email, password }) => {
 };
 
 const queryReadLogin = async ({ email, password }) => {
-  const user = await userRepository.find({ where: { email ,password} });
+  const user = await userRepository.find({ where: { email, password } });
   return user;
 };
 
@@ -22,13 +22,13 @@ const queryReadAllUser = async () => {
 
 const queryReadOneUser = async (id) => {
   const userList = await userRepository.find({ where: { id } });
-  return userList;
+  return userList[0];
 };
 
-const queryReadTodoInUser = async (id) => {
-    const todoList = await usersTodoRepository.find({where: {user_id: id}})
-    return todoList
-}
+const queryReaduserInTodo = async (todo_id) => {
+  const userList = await usersTodoRepository.find({ where: { todo_id } });
+  return userList;
+};
 
 const queryUdateOneUser = async ({ id, username, email, password }) => {
   const result = await userRepository
@@ -37,31 +37,11 @@ const queryUdateOneUser = async ({ id, username, email, password }) => {
     .set({ username, email, password })
     .where("id = :id", { id })
     .execute();
-  return result
+  return result;
 };
 
 const queryDeleteUser = async (userId) => {
-  const arrTodoIdObj = await queryReadTodoInUser(userId);
-  const arrTodoId = [];
-  for (let i = 0; i < arrTodoIdObj.length; i++)
-    arrTodoId.push(arrTodoIdObj[i].todo_id);
-  try {
-    // await commentRepository.delete({ author: userId });
-    for (let i = 0; i < arrTodoId.length; i++) {
-      let todo_id = arrTodoId[i];
-      console.log(todo_id);
-    //   await commentRepository.delete({ todo_id });
-    //   await usersTodoRepository.delete({ user_id: userId });
-    //   await todoRepository.delete({ todo_id });
-
-      await queryDeleteTodo({userId, todo_id})
-      await userRepository.delete({where: {id: userId}})
-    }
-    return { message: "Delete successfully" };
-  } catch (err) {
-    console.log(err);
-    return { message: "Bad request" };
-  }
+  await userRepository.delete({  id: userId  });
 };
 
 const queryReadOneTodoId = async (todo_id) => {
@@ -69,52 +49,45 @@ const queryReadOneTodoId = async (todo_id) => {
   return todo[0];
 };
 
-const queryreadTodoUser = async (userId) => {
+const queryreadTodoUserFromLink = async (userId) => {
   const todo_idList = await usersTodoRepository.find({
     select: ["todo_id"],
     where: { user_id: userId },
   });
-  const allUser = [];
-  for (let i = 0; i < todo_idList.length; i++) {
-    const todo_id = todo_idList[i].todo_id;
-    const todo = await readOneTodoId(todo_id);
-    allUser.push(todo);
-  }
-  return allUser;
+  return todo_idList;
 };
 
 const queryAddTodo = async ({ userId, task, status }) => {
   const newTodo = { task, status };
-  const result = await todoRepository.save(newTodo);
-  console.log(result);
-  const newTodoUserLink = { todo_id: newTodo.todo_id, user_id: userId };
-  await usersTodoRepository.save(newTodoUserLink);
-  return newTodo;
+  if (!task || !status || !userId) {
+    return { success: false, message: "Bad Request" };
+  }
+  const data = await todoRepository.save(newTodo);
+  return { data, success: true };
 };
 
+const queryAddUserTodo = async ({ userId, todo_id }) => {
+  const newTodoUserLink = { user_id: userId, todo_id };
+  await usersTodoRepository.save(newTodoUserLink);
+};
+
+const queryRemoveOneLink = async({ userId, todo_id }) =>{
+  const result = await usersTodoRepository.delete( {user_id: userId, todo_id})
+}
 
 const queryUpdateTodo = async ({ todo_id, task, status }) => {
-  await todoRepository
+  const result = await todoRepository
     .createQueryBuilder("todo")
     .update({ todo_id })
     .set({ task, status })
     .where("todo_id = :todo_id", { todo_id })
     .execute();
-  const newTodo = await todoRepository.find({ where: { todo_id } });
-  return newTodo;
+  // const newTodo = await todoRepository.find({ where: { todo_id } });
+  return result;
 };
 
-const queryDeleteTodo = async ({ userId, todo_id }) => {
-  console.log({ userId, todo_id });
-  try {
-    await usersTodoRepository.delete({ todo_id, user_id: userId });
-    await todoRepository.delete({ todo_id });
-    await commentRepository.delete({ todo_id });
-    return { message: "Delete successful" };
-  } catch (error) {
-    console.log(error);
-    return { message: "Bad Request" };
-  }
+const queryDeleteTodo = async ( todo_id ) => {
+  await todoRepository.delete({ todo_id });
 };
 
 const queryAddComment = async ({ title, body, todo_id, userId }) => {
@@ -146,8 +119,8 @@ const queryUpdateComment = async ({ title, body, commentid, userId }) => {
 };
 
 const queryDeleteComment = async (commentid) => {
-    const result = await commentRepository.delete({ commentid });
-    return result
+  const result = await commentRepository.delete({ commentid });
+  return result;
 };
 
 module.exports = {
@@ -164,12 +137,14 @@ module.exports = {
   queryReadAllUser,
   queryUdateOneUser,
   queryDeleteUser,
+  queryRemoveOneLink,
 
   queryAddTodo,
   queryUpdateTodo,
-  queryreadTodoUser,
+  queryAddUserTodo,
+  queryReaduserInTodo,
+  queryreadTodoUserFromLink,
   queryReadOneTodoId,
   queryUpdateTodo,
   queryDeleteTodo,
-
 };

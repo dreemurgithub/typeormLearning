@@ -8,12 +8,20 @@ const {
   queryReadAllUser,
   queryReadOneUser,
   queryUdateOneUser,
-  queryDeleteUser
-} = require("../../queryHelper/index");
+  queryDeleteUser,
+  queryReadCommentUser,
+  queryreadTodoUserFromLink,
+  queryRemoveOneLink,
+  queryDeleteComment,
+  queryDeleteTodo,
+} = require("../../queryHelper");
 const { emailRegex } = require("../../../constants");
 const readAllUserOrm = async () => {
-  const users = await queryReadAllUser();
-  return users;
+  try{const users = await queryReadAllUser();
+  return {data: users, success: true };
+} catch {
+  return{message: 'Something wrong', success: false }
+}
 };
 
 const readOneUserOrm = async (id) => {
@@ -49,31 +57,48 @@ const UdateOneUserOrm = async ({ id, username, email, password }) => {
     return {
       success: true,
       data: { id, username, email, password },
-    }
-  else return {
-    success: false,
-    message: "No record was updated"
-  }
+    };
+  else
+    return {
+      success: false,
+      message: "No record was updated",
+    };
 };
 
-const deleteUserOrm = async (userId) => {
-  const arrTodoIdObj = await users_todoRepository.find({ user_id: userId });
-  const arrTodoId = [];
-  for (let i = 0; i < arrTodoIdObj.length; i++)
-    arrTodoId.push(arrTodoIdObj[i].todo_id);
+const deleteUserOrm = async ({ id, userId }) => {
+  if (id !== userId)
+    return { message: "Don't have the permission", success: false };
+
+  const arrCommentUserListObj = await queryReadCommentUser(userId);
+  const arrCommentUserList = [];
+  arrCommentUserListObj.forEach((comment) =>
+    arrCommentUserList.push(comment.commentid)
+  );
+
+  const arrTodoIdList = [];
+  const arrTodoIdListObj = await queryreadTodoUserFromLink(userId);
+  arrTodoIdListObj.forEach((todo) => arrTodoIdList.push(todo.commentid));
+  for (let i = 0; i < arrTodoIdListObj.length; i++)
+    arrTodoIdList.push(arrTodoIdListObj[i].todo_id);
   try {
     // await commentRepository.delete({ author: userId });
-    for (let i = 0; i < arrTodoId.length; i++) {
-      let todo_id = arrTodoId[i];
-      console.log(todo_id);
-      await commentRepository.delete({ todo_id });
-      await users_todoRepository.delete({ user_id: userId });
-      await todoRepository.delete({ todo_id });
+    for (let i = 0; i < arrCommentUserList.length; i++) {
+      let commentid = arrCommentUserList[i];
+      await queryDeleteComment(commentid);
     }
-    return { message: "Delete successfully" };
+
+    for (let i = 0; i < arrTodoIdList.length; i++) {
+      let todo_id = arrTodoIdList[i];
+      if (todo_id) {
+        await queryRemoveOneLink({ userId, todo_id });
+        await queryDeleteTodo(todo_id);
+      }
+    }
+    await queryDeleteUser( userId );
+    return { message: "Delete successfully", success: true };
   } catch (err) {
     console.log(err);
-    return { message: "Bad request" };
+    return { message: "something wrong", success: false };
   }
 };
 
